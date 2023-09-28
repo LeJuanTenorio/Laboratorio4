@@ -1,14 +1,6 @@
-export enum Attribute {
-    name = "name"
-}
-
 class Card extends HTMLElement {
     name?: string;
     agentData: any[] = [];
-
-    static get observedAttributes() {
-        return [Attribute.name];
-    }
 
     constructor() {
         super();
@@ -16,13 +8,12 @@ class Card extends HTMLElement {
     }
 
     async connectedCallback() {
-        this.name = this.getAttribute(Attribute.name) || "";
-
         try {
             const response = await fetch('https://valorant-api.com/v1/agents');
             const data = await response.json();
             this.agentData = data.data;
-            this.render();
+            console.log(this.agentData);
+            this.render(); 
         } catch (error) {
             console.log(error);
         }
@@ -30,18 +21,28 @@ class Card extends HTMLElement {
 
     render() {
         if (this.shadowRoot) {
+            const container = document.createElement('div');
+            container.className = 'container';
             if (this.agentData.length > 0) {
-                const firstAgent = this.agentData[0];
-                this.shadowRoot.innerHTML = `
-                    <h1>${firstAgent.displayName}</h1>
-                    <p>${firstAgent.description}</p>
-                `;
+                this.agentData.forEach((agent) => {
+                    const agentElement = document.createElement('div');
+                    agentElement.className = 'agent-card';
+                    agentElement.innerHTML = `
+                        <h1>${agent.displayName}</h1>
+                        <p>${agent.description}</p>
+                        <img src="${agent.fullPortrait}">
+                    `;
+                    container.appendChild(agentElement);
+                });
             } else {
-                this.shadowRoot.innerHTML = '<p>No agent data available</p>';
+                container.innerHTML = '<p>No agent data available</p>';
             }
+            this.shadowRoot.innerHTML = '';
+            this.shadowRoot.appendChild(container);
         }
     }
 }
 
 customElements.define("card-element", Card);
+
 export default Card;
