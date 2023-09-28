@@ -1,49 +1,47 @@
-const agentFetch: Promise<Response> = fetch('https://valorant-api.com/v1/agents');
-
-let agentData: Array<any> = [] ; 
-
-agentFetch
-    .then((res: Response) => {
-        return res.json();
-    })
-    .then((data) => {
-        console.log(data.data[0].displayName);
-        agentData.push(data);
-        agentData = data.name;
-    })
-    .catch((error: Error) => console.log(error));
-
-export enum Attribute{
+export enum Attribute {
     name = "name"
 }
 
-class Card extends HTMLElement{
+class Card extends HTMLElement {
+    name?: string;
+    agentData: any[] = [];
 
-    name?: String;
-
-    static getObservedattributes(){
-        return [Attribute.name]
+    static get observedAttributes() {
+        return [Attribute.name];
     }
 
-    constructor(){
+    constructor() {
         super();
-        this.attachShadow({mode:"open"});
+        this.attachShadow({ mode: "open" });
     }
 
-    connectedCallback(){
+    async connectedCallback() {
         this.name = this.getAttribute(Attribute.name) || "";
 
-        this.render();
+        try {
+            const response = await fetch('https://valorant-api.com/v1/agents');
+            const data = await response.json();
+            this.agentData = data.data;
+            this.render();
+        } catch (error) {
+            console.log(error);
+        }
     }
 
-    render(){
-        if(this.shadowRoot){
-            console.log(agentData);
-            this.shadowRoot.innerHTML = `
-            `
-        }}
-
+    render() {
+        if (this.shadowRoot) {
+            if (this.agentData.length > 0) {
+                const firstAgent = this.agentData[0];
+                this.shadowRoot.innerHTML = `
+                    <h1>${firstAgent.displayName}</h1>
+                    <p>${firstAgent.description}</p>
+                `;
+            } else {
+                this.shadowRoot.innerHTML = '<p>No agent data available</p>';
+            }
+        }
+    }
 }
 
-customElements.define("card-element", Card)
+customElements.define("card-element", Card);
 export default Card;

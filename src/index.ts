@@ -15,9 +15,7 @@ class AppContainer extends HTMLElement{
     render(){
         if(this.shadowRoot){
             this.shadowRoot.innerHTML = `
-            
             <card-element></card-element>
-            
             `
         }
     }
