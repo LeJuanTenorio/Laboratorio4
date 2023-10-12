@@ -1,3 +1,14 @@
+const fetchFunction = async (data:any) => {
+    try{
+        const response = await fetch(data);
+        const jsonJimenez = await response.json();
+        return jsonJimenez;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
 class Card extends HTMLElement {
     name?: string;
     agentData: any[] = [];
@@ -8,15 +19,10 @@ class Card extends HTMLElement {
     }
 
     async connectedCallback() {
-        try {
-            const response = await fetch('https://valorant-api.com/v1/agents');
-            const data = await response.json();
+            const data = await fetchFunction('https://valorant-api.com/v1/agents')
             this.agentData = data.data;
             console.log(this.agentData);
             this.render(); 
-        } catch (error) {
-            console.log(error);
-        }
     }
 
     render() {
